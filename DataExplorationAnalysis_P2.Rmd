@@ -1,0 +1,191 @@
+---
+title: "Assignment 2"
+author: "Maninderpreet Singh Puri"
+date: "21/10/2020"
+output: html_document
+---
+
+Task 1 of 2: Correlation
+
+1). Missing Values:
+
+Importing Libraries
+```{r}
+library(tidyr)
+library(dplyr)
+library(datasets)
+library(tidyverse)
+library(ggpubr)
+```
+
+Reading Data
+```{r}
+mdata = read.csv("Movie.csv")#load data
+glimpse(mdata)#data has 26 columns and 3891 rows
+```
+I am selecting the variables of interest and dropping variables that are not of interest(attributes about structure). This will process the variables which are important for movie evaluation.
+```{r}
+mdata = mdata[,c(3,5,9,13,14,21,24,26)]
+```
+
+Identifying NA values in remaining columns
+```{r}
+missing_Reviews <- sum(is.na(mdata$Reviews))
+missing_Reviews# 1 NA values
+missing_Director_facebook_likes <- sum(is.na(mdata$Director_facebook_likes))
+missing_Director_facebook_likes# 0 NA values
+missing_Gross <- sum(is.na(mdata$Gross))
+missing_Gross# 0 NA values
+missing_Votes <- sum(is.na(mdata$Votes))
+missing_Votes# 0 NA values
+missing_Cast_total_facebook_likes <- sum(is.na(mdata$Cast_total_facebook_likes))
+missing_Cast_total_facebook_likes# 0 NA values
+missing_Content_rating <- sum(is.na(mdata$Content_rating))
+missing_Content_rating# 0 NA values
+missing_Budget <- sum(is.na(mdata$Budget))
+missing_Budget# 0 NA values
+missing_Imdb_score <- sum(is.na(mdata$Imdb_score))
+missing_Imdb_score# 0 NA values
+missing_Movie_facebook_likes <- sum(is.na(mdata$Movie_facebook_likes))
+missing_Movie_facebook_likes# 0 NA values
+```
+
+As the number of missing values is just 1, so we can drop that row.
+```{r}
+mdata <- na.omit(mdata)
+```
+
+
+
+2) Exploration:
+
+Adding Profit column
+```{r}
+Profit <- mdata$Gross - mdata$Budget
+mdata$Profit= Profit
+```
+
+Normalizing data in all variables
+```{r}
+mdata$Reviews <-(mdata$Reviews - min(mdata$Reviews)) /(max(mdata$Reviews)-min(mdata$Reviews))
+
+mdata$Director_facebook_likes <-(mdata$Director_facebook_likes - min(mdata$Director_facebook_likes))/(max(mdata$Director_facebook_likes)-min(mdata$Director_facebook_likes))
+
+mdata$Gross <-(mdata$Gross - min(mdata$Gross)) /(max(mdata$Gross)-min(mdata$Gross))
+
+mdata$Votes <-(mdata$Votes - min(mdata$Votes)) /(max(mdata$Votes)-min(mdata$Votes))
+
+mdata$Cast_total_facebook_likes <-(mdata$Cast_total_facebook_likes - min(mdata$Cast_total_facebook_likes)) /(max(mdata$Cast_total_facebook_likes)-min(mdata$Cast_total_facebook_likes))
+
+mdata$Budget <-(mdata$Budget - min(mdata$Budget)) /(max(mdata$Budget)-min(mdata$Budget))
+
+mdata$Imdb_score <-(mdata$Imdb_score - min(mdata$Imdb_score)) /(max(mdata$Imdb_score)-min(mdata$Imdb_score))
+
+mdata$Movie_facebook_likes <-(mdata$Movie_facebook_likes - min(mdata$Movie_facebook_likes)) /(max(mdata$Movie_facebook_likes)-min(mdata$Movie_facebook_likes))
+
+mdata$Profit <-(mdata$Profit - min(mdata$Profit)) /(max(mdata$Profit)-min(mdata$Profit))
+
+```
+
+Relationship between Profit and other variables.
+The trend line shows the relationship is positive, negative or there is no relation.
+```{r}
+ggscatter(mdata, x = "Reviews", y = "Profit", fill = "lightgray", shape = 4,
+size = 2, color = "#00AFBB", add = c("reg.line")) 
+ggscatter(mdata, x = "Director_facebook_likes", y = "Profit", fill = "lightgray", shape = 4, size = 2, color = "Cyan", add = c("reg.line"))
+ggscatter(mdata, x = "Gross", y = "Profit", fill = "lightgray", shape = 4,
+size = 2, color = "#E7B800", add = c("reg.line"))
+ggscatter(mdata, x = "Votes", y = "Profit", fill = "lightgray", shape = 4,
+size = 2, color = "#FC4E07", add = c("reg.line"))
+ggscatter(mdata, x = "Cast_total_facebook_likes", y = "Profit", fill = "lightgray", shape = 4, size = 2, color = "Blue", add = c("reg.line"))
+ggscatter(mdata, x = "Budget", y = "Profit", fill = "lightgray", shape = 4,
+size = 2, color = "Red", add = c("reg.line"))
+ggscatter(mdata, x = "Imdb_score", y = "Profit", fill = "lightgray", shape = 4,
+size = 2, color = "Green", add = c("reg.line"))
+ggscatter(mdata, x = "Movie_facebook_likes", y = "Profit", fill = "lightgray", shape = 4, size = 2, color = "Black", add = c("reg.line"))
+```
+
+Calculating correlation between the variable(s) used in the Data set.
+```{r}
+res4 <- cor(mdata, use = "everything", method = c("kendall")) 
+round(res4, 2)
+```
+
+Listing and plotting Strong and Weak Correlations
+```{r}
+library(corrplot)
+cr = cor(mdata)
+corrplot(cr)
+corrplot(cr, method = "color")
+corrplot(cr, method = "pie")
+```
+As we can see in the plot the {Budget, Profit} and {Budget, Imdb_score} pairs have weak correlation. Rest all have a positive correlation(strong correlation). 
+This means as Budget increases, the Profit and Imdb_score decreases.
+
+
+
+
+Task 2 of 2: Association Rule mining
+
+Importing Libraries
+```{r}
+library(arules)
+library(arulesViz)
+```
+
+Reading data
+```{r}
+tdata = read.csv("Titanic.csv")#load data
+glimpse(tdata)#data has 5 columns and 2201 rows
+class(tdata)
+head(tdata)
+```
+
+Calculating missing values
+```{r}
+missing_titanic <- sum(is.na(tdata))
+missing_titanic# No missing values in Titanic dataset
+```
+No imputation is needed as we have to perform association rule mining which doesn't need numeric values.
+
+Sub setting data to eliminate the first index column
+```{r}
+tdata<- subset(tdata,select = -c(X))
+head(tdata)
+summary(tdata)
+```
+
+Converting to Transaction data
+```{r}
+tdata <- as (tdata, "transactions")
+```
+
+Creating the Association rules using apriori algorithm
+```{r}
+rules_Survived_Yes <- apriori(tdata, parameter = list(sup = 0.005, conf = 0.8, minlen = 2), appearance = list(default = "lhs", rhs ="Survived=Yes" ))
+summary(rules_Survived_Yes)
+```
+
+Inspecting the top 3 pairs by Lift 
+```{r}
+inspect(head(sort(rules_Survived_Yes, by="lift"),3))
+```
+The three pairs of entries have the highest lift value. 
+
+Plotting the top 3 pairs by Lift 
+```{r}
+datadd <- head(sort(rules_Survived_Yes, by="lift"),n = 3)
+head(quality(datadd))
+plot(datadd)
+plot(datadd , method = "graph", engine = "htmlwidget")
+```
+
+There is a significant difference between children traveling in first class, second class and third class.
+
+According the generated graph, children who are traveling in first class and are female {Class=1st, Sex=Female} => {Survived=Yes} survived the tragedy. Also children who are in second class {Class=2nd, Age=Child} => {Survived=Yes} and were females {Class=2nd, Sex=Female, Age=Child} => {Survived=Yes} survived as well.
+
+However children in third class did not survived according the generated graph.
+
+One of the value added observations that can be derived from above information is that the first-class female passengers and Second-class children had the same chance of survival(high survival chance) than men in First, second, third class(low survival chance).
+
+
