@@ -1,0 +1,625 @@
+---
+title: "Assignment 1"
+author: "Maninderpreet Singh Puri"
+date: "01/10/2020"
+output: html_document
+---
+
+#Task 1: Data Wrangling
+```{r}
+library(tidyr)
+library(dplyr)
+library(datasets)
+data(iris)
+library(tidyverse)
+
+#1 a.
+data1 = read.csv("data1.csv")#load data
+```
+
+```{r}
+#1 b.
+glimpse(data1)#data has 2 columns
+```
+
+```{r}
+#1 c.
+Mydata1<-separate(data1, Description, c("Location", "ID", "Date"), sep=":")#Separating data
+glimpse(Mydata1)#Mydata1 has 4 columns now
+```
+
+```{r}
+# 1 d.
+Mydata2<- unite(Mydata1,"Description", Location, ID, Date, sep=":")#Returning to original format
+glimpse(Mydata2)
+```
+
+```{r}
+#2 a.
+iris1 = read.csv("iris.csv")#Load the data 
+glimpse(iris1)#View original data
+```
+
+```{r}
+#2 b.
+Mydata3<-gather(iris1, "measure", "value",1:4)#convert data to new format
+glimpse(Mydata3)#View new format
+```
+
+```{r}
+#2 c.
+Mydata4 <- Mydata3 %>% group_by(measure) %>% mutate(n = row_number()) %>% spread(measure, value) #Spreading columns again
+```
+
+```{r}
+#2 d.
+Mydata55 <- select(Mydata4, -n)#dropping column "n"
+Mydata5 <- Mydata55[,c(4,5,2,3,1)]#Rearranging columns to get original iris data set
+```
+
+
+#Task 2: Data Wrangling
+```{r}
+#1.
+housing1 = read.csv("house_data.csv")#Read data
+```
+
+```{r}
+#2.
+glimpse(housing1)#View data
+```
+
+```{r}
+#3.
+housing1 <- tibble::rowid_to_column(housing1, "Id")#adding Id for explicitly identifying rows
+
+#removing real number values in column bathrooms
+Mydata6 <- as.integer(housing1$bathrooms)#converting column bathrooms to integers
+Mydata7 <- housing1$bathrooms - Mydata6#checking rows with real numbers
+Mydata8 <- filter(housing1, Mydata7 == 0)#filtering rows which are non real numbers
+Mydata9 <-left_join(Mydata8, housing1, by = "Id")#joining filtered rows to original data set 
+
+
+#removing real number values in column floors.x
+Mydata10 <- as.integer(Mydata9$floors.x)#converting column floors.x to integers
+Mydata11 <- Mydata9$floors.x - Mydata10#checking rows with real numbers
+Mydata12 <- filter(Mydata9, Mydata11 == 0)#filtering rows which are non real numbers
+
+Mydata12[1:10,c(2,3,4,5,6,7,8,9,10,11,12,13)]#rearranging columns
+```
+
+#Task 3: Univariate Graphs
+```{r}
+#1. Yes there are anomalies (unusual data or missing values) in the given dataset. I have removed missing values and abnormal data below
+
+
+# Yes I am going to remove the missing values. As data set has dual_sim column with missing values which can cause problems while analyzing data.So, I will replace the missing values with NA and then process all NA columns further.
+
+
+mobilePhoneData1 = read.csv("mobilePhoneData.csv")#Reading data 
+Mydata13 = data.frame(t(mobilePhoneData1))#Transposing data
+Mydata13 <- Mydata13[c(2:301),c(1:20)]#Removing headers
+Mydata13<- as_tibble(Mydata13)#formatting
+
+#Column dual_sim has empty cells so needs to be pre-processed
+Mydata13$X4[Mydata13$X4==''] <- NA#Replacing empty cells with NA
+
+#Column sc_w has abnormality as screen width cannot be 0. So replacing with mean value
+Mydata37 <- as.integer(Mydata13$X16)#Converting to int
+Mydata38 <- mean(Mydata37)#Finding mean of column 'sc_w'
+Mydata13$X16[Mydata13$X16=='0'] <- round(Mydata38)#Replacing '0' with mean(6)
+
+
+#Identifying NA values in all columns
+Mydata14 <- sum(is.na(Mydata13$X1))#battery_power
+Mydata14#30 values
+Mydata15 <- sum(is.na(Mydata13$X2))#blue
+Mydata15#0 values
+Mydata16 <- sum(is.na(Mydata13$X3))#clock_speed
+Mydata16#0 values
+Mydata17 <- sum(is.na(Mydata13$X4))#dual_sim
+Mydata17#15 values
+Mydata18 <- sum(is.na(Mydata13$X5))#fc
+Mydata18#2 values
+Mydata19 <- sum(is.na(Mydata13$X6))#four_g
+Mydata19#0 values
+Mydata20 <- sum(is.na(Mydata13$X7))#int_memory
+Mydata20#5 values
+Mydata21 <- sum(is.na(Mydata13$X8))#m_dep
+Mydata21#151 values
+Mydata22 <- sum(is.na(Mydata13$X9))#mobile_wt
+Mydata22#1 values
+Mydata23 <- sum(is.na(Mydata13$X10))#n_cores
+Mydata23#1 values
+Mydata24 <- sum(is.na(Mydata13$X11))#pc
+Mydata24#2 values
+Mydata25 <- sum(is.na(Mydata13$X12))#px_height
+Mydata25#0 values
+Mydata26 <- sum(is.na(Mydata13$X13))#px_width
+Mydata26#6 values
+Mydata27 <- sum(is.na(Mydata13$X14))#ram
+Mydata27#225 values
+Mydata28 <- sum(is.na(Mydata13$X15))#sc_h
+Mydata28#1 values
+Mydata29 <- sum(is.na(Mydata13$X16))#sc_w
+Mydata29#0 values
+Mydata30 <- sum(is.na(Mydata13$X17))#talk_time
+Mydata30#0 values
+Mydata31 <- sum(is.na(Mydata13$X18))#three_g
+Mydata31#0 values
+Mydata32 <- sum(is.na(Mydata13$X19))#touch_screen
+Mydata32#0 values
+Mydata33 <- sum(is.na(Mydata13$X20))#wifi
+Mydata33#0 values
+
+#As we can notice that columns m_dep and ram have more than 30 % NA values so we can drop these variable as it can contaminate the whole data set.
+Mydata13 = Mydata13[,c(1,2,3,4,5,6,7,9,10,11,12,13,15,16,17,18,19,20)]
+
+#As we can notice that column battery_power has 10% NA values we would replace all NA values with mean value of the column.
+Mydata34 <- as.integer(Mydata13$X1)#Converting to integer
+Mydata39 <- mean(Mydata34, na.rm = TRUE)#Finding mean
+ind <- which (is.na(Mydata34) )#Marking indicies with NA values
+Mydata34[ind] <- round(Mydata39)#Replacing NA cells with mean(1234)
+Mydata13$X1 <- Mydata34#Re-constructing column 
+
+#Remaining  NA values in all columns are very low so we can just ommit all the NA values using na.omit() function
+Mydata13 <- na.omit(Mydata13)
+
+#Making the format of categorical attributes similar(to 1 and 2)
+is.factor(Mydata13$X4)
+Mydata13$X4 <- factor(Mydata13$X4)
+Mydata13$X4 <- as.integer(Mydata13$X4)
+
+is.factor(Mydata13$X2)
+Mydata13$X2 <- factor(Mydata13$X2)
+Mydata13$X2 <- as.integer(Mydata13$X2)
+
+is.factor(Mydata13$X6)
+Mydata13$X6 <- factor(Mydata13$X6)
+Mydata13$X6 <- as.integer(Mydata13$X6)
+
+is.factor(Mydata13$X18)
+Mydata13$X18 <- factor(Mydata13$X18)
+Mydata13$X18 <- as.integer(Mydata13$X18)
+
+is.factor(Mydata13$X19)
+Mydata13$X19 <- factor(Mydata13$X19)
+Mydata13$X19 <- as.integer(Mydata13$X19)
+
+is.factor(Mydata13$X20)
+Mydata13$X20 <- factor(Mydata13$X20)
+Mydata13$X20 <- as.integer(Mydata13$X20)
+
+```
+
+```{r}
+#2. Yes we need to normalize the data as all columns are in different ranges so we need to bring them to a common range to plot them correctly. I have normalized the data in next step
+```
+
+```{r}
+
+
+#3 I have first presented the Descriptive statistics, then normalized data to plot histograms. Then I have plotted all the variables in one boxplot.
+
+#loading packages
+library("ggplot2")
+library("dplyr")
+library("tidyr")
+library("mosaicData")
+library("carData")
+library("VIM")
+library("scales")
+library("treemapify")
+library("gapminder")
+library("ggmap")
+library("choroplethr")
+library("choroplethrMaps")
+library("CGPfunctions")
+library("ggcorrplot")
+library("visreg")
+library("gcookbook")
+library("forcats")
+
+#coverting all variables to numberic values
+Mydata40 <- Mydata13$X1
+Mydata13$X3 <- as.numeric(Mydata13$X3)
+Mydata13$X5 <- as.integer(Mydata13$X5)
+Mydata13$X7 <- as.integer(Mydata13$X7)
+Mydata13$X9 <- as.integer(Mydata13$X9)
+Mydata13$X10 <- as.integer(Mydata13$X10)
+Mydata13$X11 <- as.integer(Mydata13$X11)
+Mydata13$X12 <- as.integer(Mydata13$X12)
+Mydata13$X13 <- as.integer(Mydata13$X13)
+Mydata13$X15 <- as.integer(Mydata13$X15)
+Mydata13$X16 <- as.integer(Mydata13$X16)
+Mydata13$X17 <- as.integer(Mydata13$X17)
+Mydata42 <- Mydata13$X10
+
+#Find the mean, median, mode, range, quartiles
+#Modea function for calculating mode
+Modea <- function(x) {
+ux <- unique(x)
+tab <- tabulate(match(x, ux))
+ux[tab == max(tab)]
+}
+
+#Descriptive statistics for battery_power
+sprintf("Mean: %d", round(mean(Mydata13$X1)))
+sprintf("Median: %d", median(Mydata13$X1))
+sprintf("Mode: %d", Modea(Mydata13$X1))
+sprintf("Range: %d", max(Mydata13$X1)−min(Mydata13$X1))
+paste("Quartiles:", quantile(Mydata13$X1))
+
+#Descriptive statistics for blue
+sprintf("Mean: %d", round(mean(Mydata13$X2)))
+sprintf("Median: %d", median(Mydata13$X2))
+sprintf("Mode: %d", Modea(Mydata13$X2))
+sprintf("Range: %d", max(Mydata13$X2)−min(Mydata13$X2))
+paste("Quartiles:", quantile(Mydata13$X2))
+
+#Descriptive statistics for clock_speed
+sprintf("Mean: %d", round(mean(Mydata13$X3)))
+sprintf("Median: %d", round(median(sort(Mydata13$X3))))
+sprintf("Mode: %s", as.character(Modea(sort(Mydata13$X3))))
+sprintf("Range: %s", as.character(max(Mydata13$X3)−min(Mydata13$X3)))
+paste("Quartiles:", quantile(Mydata13$X3))
+
+#Descriptive statistics for dual_sim
+sprintf("Mean: %d", round(mean(Mydata13$X4)))
+sprintf("Median: %d", median(Mydata13$X4))
+sprintf("Mode: %d", Modea(Mydata13$X4))
+sprintf("Range: %d", max(Mydata13$X4)−min(Mydata13$X4))
+paste("Quartiles:", quantile(Mydata13$X4))
+
+#Descriptive statistics for fc
+sprintf("Mean: %d", round(mean(Mydata13$X5)))
+sprintf("Median: %d", median(Mydata13$X5))
+sprintf("Mode: %d", Modea(Mydata13$X5))
+sprintf("Range: %d", max(Mydata13$X5)−min(Mydata13$X5))
+paste("Quartiles:", quantile(Mydata13$X5))
+
+#Descriptive statistics for four_g
+sprintf("Mean: %d", round(mean(Mydata13$X6)))
+sprintf("Median: %d", median(Mydata13$X6))
+sprintf("Mode: %d", Modea(Mydata13$X6))
+sprintf("Range: %d", max(Mydata13$X6)−min(Mydata13$X6))
+paste("Quartiles:", quantile(Mydata13$X6))
+
+#Descriptive statistics for int_memory
+sprintf("Mean: %d", round(mean(Mydata13$X7)))
+sprintf("Median: %d", median(Mydata13$X7))
+sprintf("Mode: %d", Modea(Mydata13$X7))
+sprintf("Range: %d", max(Mydata13$X7)−min(Mydata13$X7))
+paste("Quartiles:", quantile(Mydata13$X7))
+
+#Descriptive statistics for mobile_wt
+sprintf("Mean: %d", round(mean(Mydata13$X9)))
+sprintf("Median: %d", round(median(sort(Mydata13$X9))))
+sprintf("Mode: %d", Modea(Mydata13$X9))
+sprintf("Range: %d", max(Mydata13$X9)−min(Mydata13$X9))
+paste("Quartiles:", quantile(Mydata13$X9))
+
+#Descriptive statistics for n_cores
+sprintf("Mean: %d", round(mean(Mydata13$X10)))
+sprintf("Median: %d", median(Mydata13$X10))
+sprintf("Mode: %d", Modea(Mydata13$X10))
+sprintf("Range: %d", max(Mydata13$X10)−min(Mydata13$X10))
+paste("Quartiles:", quantile(Mydata13$X10))
+
+#Descriptive statistics for pc
+sprintf("Mean: %d", round(mean(Mydata13$X11)))
+sprintf("Median: %d", median(Mydata13$X11))
+sprintf("Mode: %d", Modea(Mydata13$X11))
+sprintf("Range: %d", max(Mydata13$X11)−min(Mydata13$X11))
+paste("Quartiles:", quantile(Mydata13$X11))
+
+#Descriptive statistics for px_height
+sprintf("Mean: %d", round(mean(Mydata13$X12)))
+sprintf("Median: %d", round(median(sort(Mydata13$X12))))
+sprintf("Mode: %s", as.character(Modea(sort(Mydata13$X12))))
+sprintf("Range: %d", max(Mydata13$X12)−min(Mydata13$X12))
+paste("Quartiles:", quantile(Mydata13$X12))
+
+#Descriptive statistics for px_width
+sprintf("Mean: %d", round(mean(Mydata13$X13)))
+sprintf("Median: %d", round(median(sort(Mydata13$X13))))
+sprintf("Mode: %d", Modea(Mydata13$X13))
+sprintf("Range: %d", max(Mydata13$X13)−min(Mydata13$X13))
+paste("Quartiles:", quantile(Mydata13$X13))
+
+#Descriptive statistics for sc_h
+sprintf("Mean: %d", round(mean(Mydata13$X15)))
+sprintf("Median: %d", round(median(sort(Mydata13$X15))))
+sprintf("Mode: %d", Modea(Mydata13$X15))
+sprintf("Range: %d", max(Mydata13$X15)−min(Mydata13$X15))
+paste("Quartiles:", quantile(Mydata13$X15))
+
+#Descriptive statistics for sc_w
+sprintf("Mean: %d", round(mean(Mydata13$X16)))
+sprintf("Median: %d", round(median(sort(Mydata13$X16))))
+sprintf("Mode: %d", Modea(Mydata13$X16))
+sprintf("Range: %d", max(Mydata13$X16)−min(Mydata13$X16))
+paste("Quartiles:", quantile(Mydata13$X16))
+
+#Descriptive statistics for talk_time
+sprintf("Mean: %d", round(mean(Mydata13$X17)))
+sprintf("Median: %d", round(median(sort(Mydata13$X17))))
+sprintf("Mode: %s", as.character(Modea(sort(Mydata13$X17))))
+sprintf("Range: %d", max(Mydata13$X17)−min(Mydata13$X17))
+paste("Quartiles:", quantile(Mydata13$X17))
+
+#Descriptive statistics for three_g
+sprintf("Mean: %d", round(mean(Mydata13$X18)))
+sprintf("Median: %d", median(Mydata13$X18))
+sprintf("Mode: %d", Modea(Mydata13$X18))
+sprintf("Range: %d", max(Mydata13$X18)−min(Mydata13$X18))
+paste("Quartiles:", quantile(Mydata13$X18))
+
+#Descriptive statistics for touch_screen
+sprintf("Mean: %d", round(mean(Mydata13$X19)))
+sprintf("Median: %d", median(Mydata13$X19))
+sprintf("Mode: %d", Modea(Mydata13$X19))
+sprintf("Range: %d", max(Mydata13$X19)−min(Mydata13$X19))
+paste("Quartiles:", quantile(Mydata13$X19))
+
+#Descriptive statistics for wifi
+sprintf("Mean: %d", round(mean(Mydata13$X20)))
+sprintf("Median: %d", median(Mydata13$X20))
+sprintf("Mode: %d", Modea(Mydata13$X20))
+sprintf("Range: %d", max(Mydata13$X20)−min(Mydata13$X20))
+paste("Quartiles:", quantile(Mydata13$X20))
+
+#Normalizing data
+Mydata13$X1<-(Mydata13$X1 - min(Mydata13$X1)) /(max(Mydata13$X1)-min(Mydata13$X1))
+
+Mydata13$X2<-(Mydata13$X2 - min(Mydata13$X2)) /(max(Mydata13$X2)-min(Mydata13$X2))
+
+Mydata13$X3<-(Mydata13$X3 - min(Mydata13$X3)) /(max(Mydata13$X3)-min(Mydata13$X3))
+
+Mydata13$X4<-(Mydata13$X4 - min(Mydata13$X4)) /(max(Mydata13$X4)-min(Mydata13$X4))
+
+Mydata13$X5<-(Mydata13$X5 - min(Mydata13$X5)) /(max(Mydata13$X5)-min(Mydata13$X5))
+
+Mydata13$X6<-(Mydata13$X6 - min(Mydata13$X6)) /(max(Mydata13$X6)-min(Mydata13$X6))
+
+Mydata13$X7<-(Mydata13$X7 - min(Mydata13$X7)) /(max(Mydata13$X7)-min(Mydata13$X7))
+
+Mydata13$X9<-(Mydata13$X9 - min(Mydata13$X9)) /(max(Mydata13$X9)-min(Mydata13$X9))
+
+Mydata13$X10<-(Mydata13$X10 - min(Mydata13$X10)) /(max(Mydata13$X10)-min(Mydata13$X10))
+
+Mydata13$X11<-(Mydata13$X11 - min(Mydata13$X11)) /(max(Mydata13$X11)-min(Mydata13$X11))
+
+Mydata13$X12<-(Mydata13$X12 - min(Mydata13$X12)) /(max(Mydata13$X12)-min(Mydata13$X12))
+
+Mydata13$X13<-(Mydata13$X13 - min(Mydata13$X13)) /(max(Mydata13$X13)-min(Mydata13$X13))
+
+Mydata13$X15<-(Mydata13$X15 - min(Mydata13$X15)) /(max(Mydata13$X15)-min(Mydata13$X15))
+
+Mydata13$X16<-(Mydata13$X16 - min(Mydata13$X16)) /(max(Mydata13$X16)-min(Mydata13$X16))
+
+Mydata13$X17<-(Mydata13$X17 - min(Mydata13$X17)) /(max(Mydata13$X17)-min(Mydata13$X17))
+
+Mydata13$X18<-(Mydata13$X18 - min(Mydata13$X18)) /(max(Mydata13$X18)-min(Mydata13$X18))
+
+Mydata13$X19<-(Mydata13$X19 - min(Mydata13$X19)) /(max(Mydata13$X19)-min(Mydata13$X19))
+
+
+Mydata13$X20<-(Mydata13$X20 - min(Mydata13$X20)) /(max(Mydata13$X20)-min(Mydata13$X20))
+
+
+#Plotting histograms for all variables
+hist(Mydata13$X1, ylim =c(0,60), main = "Histogram of battery_power variable", xlab = "Values of battery_power")
+hist(Mydata13$X2, breaks = 2, ylim =c(0,150), main = "Histogram of blue variable", xlab = "Values of blue")
+hist(Mydata13$X3,ylim =c(0,80), main = "Histogram of clock_speed variable", xlab = "Values of clock_speed")
+hist(Mydata13$X4, breaks = 2, ylim =c(0,200), main = "Histogram of dual_sim variable", xlab = "Values of dual_sim")
+hist(Mydata13$X5, ylim =c(0,150), main = "Histogram of fc variable", xlab = "Values of fc")
+hist(Mydata13$X6, breaks = 2, ylim =c(0,150), main = "Histogram of four_g variable", xlab = "Values of four_g")
+hist(Mydata13$X7, ylim =c(0,40), main = "Histogram of int_memory variable", xlab = "Values of int_memory")
+hist(Mydata13$X9, ylim =c(0,40),  main = "Histogram of mobile_wt variable", xlab = "Values of mobile_wt")
+hist(Mydata13$X10, ylim =c(0,60),  main = "Histogram of n_cores variable", xlab = "Values of n_cores")
+hist(Mydata13$X11, ylim =c(0,60),  main = "Histogram of pc variable", xlab = "Values of pc")
+hist(Mydata13$X12, ylim =c(0,60),  main = "Histogram of px_height variable", xlab = "Values of px_height")
+hist(Mydata13$X13, ylim =c(0,60),  main = "Histogram of px_width variable", xlab = "Values of px_width")
+hist(Mydata13$X15, ylim =c(0,40), main = "Histogram of sc_h variable", xlab = "Values of sc_h")
+hist(Mydata13$X16, ylim =c(0,80), main = "Histogram of sc_w variable", xlab = "Values of sc_w")
+hist(Mydata13$X17, ylim =c(0,60), main = "Histogram of talk_time variable", xlab = "Values of talk_time")
+hist(Mydata13$X18, breaks = 2, ylim =c(0,250), main = "Histogram of three_g variable", xlab = "Values of three_g")
+hist(Mydata13$X19, breaks = 2, ylim =c(0,160), main = "Histogram of touch_screen variable", xlab = "Values of touch_screen")
+hist(Mydata13$X20, breaks = 2, ylim =c(0,160), main = "Histogram of wifi variable", xlab = "Values of wifi")
+
+#From Histograms we can see that many variable(clock_speed, fc, int_memory, n_cores, pc,px_height, sc_w, three_g) don't follow a normal distribution
+
+#From Histogram we can also see outliers in sc_w variable with a huge bar.
+
+#Renaming columns for better visualization
+names(Mydata13)[1] <- "battery_power"
+names(Mydata13)[2] <- "blue"
+names(Mydata13)[3] <- "clock_speed"
+names(Mydata13)[4] <- "dual_sim"
+names(Mydata13)[5] <- "fc"
+names(Mydata13)[6] <- "four_g"
+names(Mydata13)[7] <- "int_memory"
+names(Mydata13)[8] <- "mobile_wt"
+names(Mydata13)[9] <- "n_cores"
+names(Mydata13)[10] <- "pc"
+names(Mydata13)[11] <- "px_height"
+names(Mydata13)[12] <- "px_width"
+names(Mydata13)[13] <- "sc_h"
+names(Mydata13)[14] <- "sc_w"
+names(Mydata13)[15] <- "talk_time"
+names(Mydata13)[16] <- "three_g"
+names(Mydata13)[17] <- "touch_screen"
+names(Mydata13)[18] <- "wifi"
+
+#Creating a boxplot for all variables
+boxplot(Mydata13, ylim = c(-0.2, 1.2), col = c("orange"), xlab = "Variables", ylab = "Statistics", main = "Boxplot for all variables")
+
+#MOst of the variables have median between 0.2 to 0.6 so are well distributed. However the variable fc shows high level of skewness. The three dots in sc_w variable shows the outliers.
+
+#Categorise Battery attribute on “Low”, “Medium” and “High” 
+Mydata41 <- cut(Mydata40, breaks = c(504, 1002, 1500, 1999),
+                 labels = c('Low', 'Medium', 'High'),
+                 right = FALSE)
+
+
+n_core_1 <- sum(Mydata42 == "8") / 268 * 100
+n_core_2 <- sum(Mydata42 == "7") / 268 * 100
+n_core_3 <- sum(Mydata42 == "6") / 268 * 100
+n_core_4 <- sum(Mydata42 == "5") / 268 * 100
+n_core_5 <- sum(Mydata42 == "4") / 268 * 100
+n_core_6 <- sum(Mydata42 == "3") / 268 * 100
+n_core_7 <- sum(Mydata42 == "2") / 268 * 100
+n_core_8 <- sum(Mydata42 == "1") / 268 * 100
+total_n_core <- c(n_core_1, n_core_2, n_core_3, n_core_4, n_core_5, n_core_6, n_core_7, n_core_8)
+pie(total_n_core, col = rainbow(24), radius = 0.8, labels = c("1 core = 13.80597","2 cores = 9.701493","3 cores = 10.07463","4 cores = 10.07463","5 cores = 14.1791","6 cores = 16.41791","7 cores = 11.56716","8 cores = 14.1791"), main = "Percentage of number of cores in processors ")
+```
+
+
+#Task 4
+```{r}
+#Loading libraries
+library(tidyverse)
+library(stringr)
+
+#1. Yes there are anomalies (unusual data or missing values) in the given dataset. I have removed missing values and abnormal data below
+
+
+# Yes I am going to remove the missing values. As data set has Groceries column with missing values which can cause problems while analyzing data.So, I will replace the missing values with NA and then process all NA columns further.
+
+Householddata1 <- read.csv("Householddata.csv")
+Householddata1 <- Householddata1[,c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)]
+
+#Replacing empty cells with NA
+Householddata1[Householddata1==''] <- NA
+
+comp_Income <- Householddata1$Income
+comp_Ownhouse <- Householddata1$Ownhouse
+
+#Identifying NA values in all columns
+NA_Income <- sum(is.na(Householddata1$Income))#Income
+NA_Income#75 values
+NA_Taxes <- sum(is.na(Householddata1$Taxes))#Taxes
+NA_Taxes#15 values
+NA_Groceries <- sum(is.na(Householddata1$Groceries))#Groceries
+NA_Groceries#18 values
+NA_Meals <- sum(is.na(Householddata1$Meals))#Meals
+NA_Meals#21 values
+NA_Utilities <- sum(is.na(Householddata1$Utilities))#Utilities
+NA_Utilities#15 values
+NA_Cloth <- sum(is.na(Householddata1$Cloth))#Cloth
+NA_Cloth#12 values
+NA_Alcohol <- sum(is.na(Householddata1$Alcohol))#Alcohol
+NA_Alcohol#15 values
+NA_Fuel <- sum(is.na(Householddata1$Fuel))#Fuel
+NA_Fuel#18 values
+NA_Phone <- sum(is.na(Householddata1$Phone))#Phone
+NA_Phone#10 values
+NA_Children <- sum(is.na(Householddata1$Children))#Children
+NA_Children#13 values
+NA_Adults <- sum(is.na(Householddata1$Adults))#Adults
+NA_Adults#7 values
+NA_Ownhouse <- sum(is.na(Householddata1$Ownhouse))#Ownhouse
+NA_Ownhouse#11 values
+NA_Education.Level <- sum(is.na(Householddata1$Education.Level))#Education.Level
+NA_Education.Level#0 values
+NA_HH.Age <- sum(is.na(Householddata1$HH.Age))#HH.Age
+NA_HH.Age#12 values
+NA_HH.Gender <- sum(is.na(Householddata1$HH.Gender))#HH.Gender
+NA_HH.Gender#0 values
+
+#As NA values in all columns are very low so we can just ommit all the NA values using na.omit() function
+Householddata1 <- na.omit(Householddata1)
+
+#Making the format of categorical attributes to numeric
+is.factor(Householddata1$HH.Gender)
+Householddata1$HH.Gender <- factor(Householddata1$HH.Gender)
+Householddata1$HH.Gender <- as.integer(Householddata1$HH.Gender)
+
+is.factor(Householddata1$Education.Level)
+Householddata1$Education.Level <- factor(Householddata1$Education.Level)
+Householddata1$Education.Level <- as.integer(Householddata1$Education.Level)
+
+
+#Column meals has abnormality as meals cannot be 0. So replacing with mean value
+Householddata1$Meals <- as.integer(Householddata1$Meals)#Converting to int
+Mean_Meals <- mean(Householddata1$Meals)#Finding mean of column 'Meals'
+Householddata1$Meals[Householddata1$Meals=='0'] <- round(Mean_Meals)#Replacing '0' with mean(1192)
+
+
+#Removing $ and , from Income column
+Householddata1$Income <- str_remove_all(Householddata1$Income, "[$,]")
+
+#Converting column Income from Character to int data type
+Householddata1$Income <- as.integer(Householddata1$Income)
+
+```
+
+```{r}
+#2. Yes we need to normalize the data as all columns are in different ranges so we need to bring them to a common range to plot them correctly. I have normalized the data in next step
+
+#Normalizing data
+Householddata1$Income <-(Householddata1$Income - min(Householddata1$Income))/(max(Householddata1$Income)-min(Householddata1$Income))
+
+Householddata1$Taxes <-(Householddata1$Taxes - min(Householddata1$Taxes))/(max(Householddata1$Taxes)-min(Householddata1$Taxes))
+
+Householddata1$Groceries <-(Householddata1$Groceries - min(Householddata1$Groceries))/(max(Householddata1$Groceries)-min(Householddata1$Groceries))
+
+Householddata1$Meals <-(Householddata1$Meals - min(Householddata1$Meals))/(max(Householddata1$Meals)-min(Householddata1$Meals))
+
+Householddata1$Utilities <-(Householddata1$Utilities - min(Householddata1$Utilities))/(max(Householddata1$Utilities)-min(Householddata1$Utilities))
+
+Householddata1$Cloth <-(Householddata1$Cloth - min(Householddata1$Cloth))/(max(Householddata1$Cloth)-min(Householddata1$Cloth))
+
+Householddata1$Alcohol <-(Householddata1$Alcohol - min(Householddata1$Alcohol))/(max(Householddata1$Alcohol)-min(Householddata1$Alcohol))
+
+Householddata1$Fuel <-(Householddata1$Fuel - min(Householddata1$Fuel))/(max(Householddata1$Fuel)-min(Householddata1$Fuel))
+
+Householddata1$Phone <-(Householddata1$Phone - min(Householddata1$Phone))/(max(Householddata1$Phone)-min(Householddata1$Phone))
+
+Householddata1$Children <-(Householddata1$Children - min(Householddata1$Children))/(max(Householddata1$Children)-min(Householddata1$Children))
+
+Householddata1$Adults <-(Householddata1$Adults - min(Householddata1$Adults))/(max(Householddata1$Adults)-min(Householddata1$Adults))
+
+Householddata1$Ownhouse <-(Householddata1$Ownhouse - min(Householddata1$Ownhouse))/(max(Householddata1$Ownhouse)-min(Householddata1$Ownhouse))
+
+Householddata1$Education.Level <-(Householddata1$Education.Level - min(Householddata1$Education.Level))/(max(Householddata1$Education.Level)-min(Householddata1$Education.Level))
+
+Householddata1$HH.Age <-(Householddata1$HH.Age - min(Householddata1$HH.Age))/(max(Householddata1$HH.Age)-min(Householddata1$HH.Age))
+
+Householddata1$HH.Gender <-(Householddata1$HH.Gender - min(Householddata1$HH.Gender))/(max(Householddata1$HH.Gender)-min(Householddata1$HH.Gender))
+
+```
+
+```{r}
+#3.
+
+ggplot(data = Householddata1, aes(x =Income, y=Taxes)) + geom_point()+ geom_smooth(alpha = 0.9) #  relationship between Income vs Taxes
+
+Householddata1$TOTAL_Exp <- rowSums(Householddata1[3:9])
+
+ggplot(data = Householddata1, aes(x =Income, y=TOTAL_Exp)) + geom_point() + geom_smooth(alpha = 0.9) # Income vs TOTAL Expenditure
+
+ggplot(data = Householddata1, aes(x =TOTAL_Exp, y=Taxes)) + geom_point() + geom_smooth(alpha = 0.9)# relationship between Taxes and Total expenditure
+
+
+ggplot(data = Householddata1, aes(x =Ownhouse, y=Income)) + geom_col()# relationship between Ownhouse and Income
+
+ggplot(data = Householddata1, aes(x =Ownhouse, y=Education.Level)) + geom_col()# relationship between Ownhouse and Education. Level
+
+ggplot(data = Householddata1, aes(x =Ownhouse, y=HH.Gender)) + geom_col()#  relationship between Education. Level and Gender
+
+hist(Householddata1$Ownhouse, ylim =c(0,1500), breaks = 2, xlim = c(0,1), main = "Histogram of Ownership", xlab = "No or Yes for Ownership")#frequency Ownhouse attribute
+
+
+Householddata1$HH.Age <- cut(Householddata1$HH.Age, breaks = c(0, 0.33, 0.66, 1),
+                 labels = c('Less than 25', 'between 25 to 50', 'Older than 50'),
+                 right = FALSE)#categorizing
+
+Householddata <- na.omit(Householddata1)
+ggplot(data = Householddata1, aes(x =TOTAL_Exp, y=HH.Age)) + geom_col()#Plot total expenses by “Less than 25”, “between 25 to 50”, “Older than 50”. 
+ggplot(data = Householddata1, aes(x =Income, y=HH.Age)) + geom_col()#Plot income vs age 
+
+
+```
+
